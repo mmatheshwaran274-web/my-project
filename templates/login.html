@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="form-container" role="region" aria-labelledby="login-heading">
+    <h1 id="login-heading" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary); text-align: center;">
+        Sign In to Blind Assist
+    </h1>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">
+        Enter your credentials to continue to your assistive dashboard.
+    </p>
+
+    <!-- Error Alert Box -->
+    <div id="login-error" class="flash-message danger" style="display: none;" role="alert"></div>
+
+    <form id="login-form" novalidate>
+        <div class="form-group">
+            <label for="login-email" class="form-label">Email Address <span aria-hidden="true">*</span></label>
+            <input type="email" id="login-email" name="email" class="form-control" required autocomplete="email" placeholder="name@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="login-password" class="form-label">Password <span aria-hidden="true">*</span></label>
+            <input type="password" id="login-password" name="password" class="form-control" required autocomplete="current-password">
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.75rem;">
+            <input type="checkbox" id="login-remember" name="remember" checked style="width: 22px; height: 22px; cursor: pointer;">
+            <label for="login-remember" style="font-size: 1.1rem; cursor: pointer;">Remember my login on this device</label>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Sign In
+        </button>
+    </form>
+
+    <div style="margin-top: 1.75rem; text-align: center; font-size: 1.1rem;">
+        Don't have an account yet? <a href="{{ url_for('auth.register_page') }}" style="font-weight: 700;">Create an account</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('login-form');
+    const errBox = document.getElementById('login-error');
+    const submitBtn = document.getElementById('login-submit-btn');
+
+    BlindAssistA11y.speak("Login page. Please enter your email and password.");
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        errBox.style.display = 'none';
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const remember = document.getElementById('login-remember').checked;
+
+        if (!email || !password) {
+            showError("Please enter both email and password.");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Verifying...";
+        BlindAssistA11y.announce("Verifying your login credentials...");
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, remember })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                BlindAssistA11y.speak(data.message || "Login successful. Opening dashboard.");
+                window.location.href = data.redirect || '/dashboard';
+            } else {
+                showError(data.error || "Invalid email or password.");
+            }
+        } catch (err) {
+            showError("Network connection error. Please try again.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign In";
+        }
+    });
+
+    function showError(msg) {
+        errBox.textContent = msg;
+        errBox.style.display = 'block';
+        BlindAssistA11y.speak(msg);
+        errBox.scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
+{% endblock %}

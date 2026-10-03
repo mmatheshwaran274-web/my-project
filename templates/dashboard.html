@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h1 id="dashboard-heading" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 0.5rem;">
+        <span data-i18n="welcome">Welcome</span>, {{ user.name }}
+    </h1>
+    <p style="font-size: 1.25rem; color: var(--text-secondary);">
+        Select any assistive tool below, press Tab to navigate, or press <kbd style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-weight:700;">Alt + M</kbd> to activate the Voice Assistant.
+    </p>
+</div>
+
+<!-- Main Accessible Card Grid -->
+<div class="dashboard-grid" role="region" aria-label="Assistive Tools">
+    <!-- Card 1: Voice Assistant -->
+    <a href="{{ url_for('voice.voice_page') }}" 
+       class="dash-card" 
+       role="button"
+       aria-label="Voice Assistant. Speak a command to control the application. Press Enter to open.">
+        <span class="dash-card-icon" aria-hidden="true">&#127908;</span>
+        <h2 class="dash-card-title" data-i18n="voice_assistant">Voice Assistant</h2>
+        <p class="dash-card-subtitle" data-i18n="voice_subtitle">Speak a command</p>
+    </a>
+
+    <!-- Card 2: Object Detection -->
+    <a href="{{ url_for('vision.vision_page') }}" 
+       class="dash-card" 
+       role="button"
+       aria-label="Object Detection. Identify objects and obstacles around you with camera. Press Enter to open.">
+        <span class="dash-card-icon" aria-hidden="true">&#128247;</span>
+        <h2 class="dash-card-title" data-i18n="object_detection">Object Detection</h2>
+        <p class="dash-card-subtitle" data-i18n="object_subtitle">Identify objects around you</p>
+    </a>
+
+    <!-- Card 3: Read Text (OCR) -->
+    <a href="{{ url_for('ocr.ocr_page') }}" 
+       class="dash-card" 
+       role="button"
+       aria-label="Read Text. Extract and read text from images, documents, and signs aloud. Press Enter to open.">
+        <span class="dash-card-icon" aria-hidden="true">&#128214;</span>
+        <h2 class="dash-card-title" data-i18n="read_text">Read Text</h2>
+        <p class="dash-card-subtitle" data-i18n="read_subtitle">Read text from an image</p>
+    </a>
+
+    <!-- Card 4: My Location -->
+    <a href="{{ url_for('location.location_page') }}" 
+       class="dash-card" 
+       role="button"
+       aria-label="My Location. Determine your current GPS location and coordinates. Press Enter to open.">
+        <span class="dash-card-icon" aria-hidden="true">&#128205;</span>
+        <h2 class="dash-card-title" data-i18n="my_location">My Location</h2>
+        <p class="dash-card-subtitle" data-i18n="location_subtitle">Get your current location</p>
+    </a>
+
+    <!-- Card 5: Emergency Assistance -->
+    <a href="{{ url_for('emergency.emergency_page') }}" 
+       class="dash-card card-emergency" 
+       role="button"
+       aria-label="Emergency. Request urgent assistance, alert contacts, and view safety instructions. Press Enter to open.">
+        <span class="dash-card-icon" aria-hidden="true">&#128680;</span>
+        <h2 class="dash-card-title" data-i18n="emergency">Emergency</h2>
+        <p class="dash-card-subtitle" data-i18n="emergency_subtitle">Get emergency assistance</p>
+    </a>
+
+    <!-- Card 6: Activity History -->
+    <a href="{{ url_for('history.history_page') }}" 
+       class="dash-card" 
+       role="button"
+       aria-label="Activity History. Review your recent scans, detections, and requests. Press Enter to open.">
+        <span class="dash-card-icon" aria-hidden="true">&#128220;</span>
+        <h2 class="dash-card-title" data-i18n="activity_history">Activity History</h2>
+        <p class="dash-card-subtitle" data-i18n="history_subtitle">View recent activities</p>
+    </a>
+</div>
+
+<!-- Image Analysis History Section (Requirement 8) -->
+<div class="dashboard-analyses-section" style="margin-top: 3rem;" role="region" aria-labelledby="analysis-heading">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+            <h2 id="analysis-heading" style="font-size: 1.8rem; color: var(--primary); margin: 0;">
+                &#128247; Recent Image Analyses
+            </h2>
+            <p style="color: var(--text-secondary); margin-top: 0.25rem; font-size: 1.05rem;">
+                Previous object detections and image scans saved to your account.
+            </p>
+        </div>
+        <a href="{{ url_for('history.history_page') }}" class="btn btn-outline" style="min-height: 42px; padding: 0.5rem 1rem;">
+            View All in History &rarr;
+        </a>
+    </div>
+
+    {% if recent_analyses and recent_analyses|length > 0 %}
+        <div class="data-table-container">
+            <table class="data-table" aria-label="Recent Image Analysis History">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 14%;">Preview</th>
+                        <th scope="col" style="width: 24%;">Date &amp; Time</th>
+                        <th scope="col" style="width: 48%;">AI Analysis Result</th>
+                        <th scope="col" style="width: 14%; text-align: center;">Audio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_analyses %}
+                        <tr>
+                            <td>
+                                <a href="/uploads/{{ item.image_filename }}" target="_blank" title="View image">
+                                    <img src="/uploads/{{ item.image_filename }}" 
+                                         alt="Analyzed image thumbnail" 
+                                         style="width: 58px; height: 58px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-color); background: #000;"
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'58\' height=\'58\' viewBox=\'0 0 58 58\'><rect width=\'58\' height=\'58\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'22\'>&#128247;</text></svg>';">
+                                </a>
+                            </td>
+                            <td style="font-weight: 600; color: var(--text-muted);">
+                                {{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else 'N/A' }}
+                                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">
+                                    {{ item.image_filename }}
+                                </div>
+                            </td>
+                            <td style="color: var(--text-primary); font-size: 1.05rem; font-weight: 600;">
+                                {{ item.analysis_result }}
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" 
+                                        class="btn btn-outline" 
+                                        style="min-height: 40px; padding: 0.35rem 0.75rem; font-size: 0.95rem;" 
+                                        onclick="if(typeof BlindAssistA11y!=='undefined') BlindAssistA11y.speak('{{ item.analysis_result | replace("'", "\\'") }}')"
+                                        aria-label="Speak analysis aloud">
+                                    &#128266; Read
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state" role="status" style="background: var(--bg-card); border: 2px dashed var(--border-color); border-radius: var(--card-radius); padding: 2.5rem 1.5rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.75rem;" aria-hidden="true">&#128247;</div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">No image analyses yet.</div>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 0.5rem auto 1.5rem auto;">
+                Upload an image in Object Detection or Read Text, and your AI analysis history will automatically appear here.
+            </p>
+            <a href="{{ url_for('vision.vision_page') }}" class="btn btn-primary">
+                &#128247; Open Object Detection
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userName = "{{ user.name }}";
+    setTimeout(() => {
+        if (typeof BlindAssistA11y !== 'undefined' && BlindAssistA11y.speak) {
+            BlindAssistA11y.speak(`Welcome, ${userName}. You are on your assistive dashboard.`);
+        }
+    }, 400);
+});
+</script>
+{% endblock %}

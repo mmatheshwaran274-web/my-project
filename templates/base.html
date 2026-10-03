@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }} - {{ app_tagline }}{% endblock %}</title>
+    <meta name="description" content="Blind Assist - Accessible, voice-guided web application providing object detection, text reading, geolocation, and emergency assistance for visually impaired individuals.">
+    
+    <!-- Core Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accessibility.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Screen-Reader Skip to Main Content Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Top Accessible Header & Navigation -->
+    <header class="site-header" role="banner">
+        <div class="header-container">
+            <a href="{% if current_user.is_authenticated %}{{ url_for('dashboard.dashboard_page') }}{% else %}{{ url_for('dashboard.index') }}{% endif %}" 
+               class="brand-link" 
+               aria-label="Blind Assist Home">
+                <span class="brand-icon" aria-hidden="true">👁️</span>
+                <span class="brand-text" data-i18n="brand">Blind Assist</span>
+            </a>
+
+            <!-- Quick Accessibility Bar -->
+            <div class="quick-access-bar" role="region" aria-label="Accessibility Controls">
+                <button type="button" id="header-contrast-toggle" class="btn-icon-toggle" aria-label="Toggle High Contrast Mode">
+                    <span aria-hidden="true">🌓</span>
+                    <span>Contrast</span>
+                </button>
+                <button type="button" id="header-lang-toggle" class="btn-icon-toggle" aria-label="Switch Language between English and Tamil">
+                    <span aria-hidden="true">🌐</span>
+                    <span>தமிழ்</span>
+                </button>
+            </div>
+
+            <!-- Main Navigation Links -->
+            <nav class="site-nav" role="navigation" aria-label="Main Navigation">
+                <ul class="nav-menu">
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('dashboard.dashboard_page') }}" class="nav-link {% if request.endpoint == 'dashboard.dashboard_page' %}active{% endif %}" data-i18n="dashboard">Dashboard</a></li>
+                        <li><a href="{{ url_for('dashboard.profile_page') }}" class="nav-link {% if request.endpoint == 'dashboard.profile_page' %}active{% endif %}" data-i18n="profile">Profile</a></li>
+                        <li><a href="{{ url_for('settings.settings_page') }}" class="nav-link {% if request.endpoint == 'settings.settings_page' %}active{% endif %}" data-i18n="settings">Settings</a></li>
+                        <li><a href="{{ url_for('emergency.emergency_page') }}" class="nav-link btn-nav-emergency" data-i18n="emergency">🚨 Emergency</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}" class="nav-link" data-i18n="logout">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('dashboard.index') }}" class="nav-link" data-i18n="home">Home</a></li>
+                        <li><a href="{{ url_for('dashboard.index') }}#about" class="nav-link">About</a></li>
+                        <li><a href="{{ url_for('dashboard.index') }}#features" class="nav-link">Features</a></li>
+                        <li><a href="{{ url_for('auth.login_page') }}" class="nav-link {% if request.endpoint == 'auth.login_page' %}active{% endif %}" data-i18n="login">Login</a></li>
+                        <li><a href="{{ url_for('auth.register_page') }}" class="nav-link btn-primary {% if request.endpoint == 'auth.register_page' %}active{% endif %}" data-i18n="register">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Landmark -->
+    <main id="main-content" class="main-container" role="main" tabindex="-1">
+        <!-- Flash Message Alerts -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container" role="region" aria-label="Notifications">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}" role="alert">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Accessible Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-container">
+            <div>
+                <strong>Blind Assist</strong> — <span data-i18n="tagline">Smart Assistance for Independent Living</span>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="{% if current_user.is_authenticated %}{{ url_for('settings.settings_page') }}{% else %}{{ url_for('dashboard.index') }}#features{% endif %}">Accessibility</a></li>
+                <li><a href="{{ url_for('dashboard.index') }}#about">Privacy & Security</a></li>
+                <li><a href="{% if current_user.is_authenticated %}{{ url_for('emergency.emergency_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}">Contact & Support</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Assistive Scripts -->
+    <script src="{{ url_for('static', filename='js/accessibility.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

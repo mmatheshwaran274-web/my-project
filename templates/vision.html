@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}AI Object Detection &amp; Image Analysis - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="tool-box" role="region" aria-labelledby="vision-heading">
+    <h1 id="vision-heading" style="font-size: 2.2rem; color: var(--primary); text-align: center; margin-bottom: 0.5rem;" data-i18n="object_detection">
+        AI Object Detection &amp; Image Analysis
+    </h1>
+    <p style="text-align: center; color: var(--text-secondary); font-size: 1.2rem; max-width: 700px; margin: 0 auto 1.5rem auto;">
+        Upload a photograph or use live camera feed to analyze scenes, objects, people, colors, and text with AI assistance.
+    </p>
+
+    <!-- Visual Viewport (Camera or Uploaded Image Preview) -->
+    <div class="camera-wrapper" id="viewport-wrapper" style="position: relative; min-height: 320px; display: flex; align-items: center; justify-content: center; background: #000; border-radius: 12px; overflow: hidden; border: 2.5px solid var(--border-color); margin-bottom: 1rem;">
+        <!-- Live Video Element -->
+        <video id="camera-feed" playsinline autoplay style="display: none; width: 100%; height: auto; max-height: 480px; object-fit: contain;" aria-label="Live Camera Feed"></video>
+        
+        <!-- Placeholder when Inactive -->
+        <div id="camera-placeholder" class="camera-placeholder" style="text-align: center; padding: 2.5rem 1.5rem; color: var(--text-secondary);">
+            <span style="font-size: 3.5rem; display: block; margin-bottom: 0.75rem;" aria-hidden="true">&#128247;</span>
+            <span style="font-size: 1.2rem; font-weight: 700; color: #fff;">No image selected or camera inactive.</span><br>
+            <span style="font-size: 0.95rem; opacity: 0.85;">Click "Upload Image" to select a JPG/PNG, or "Start Camera".</span>
+        </div>
+
+        <!-- Image Upload Preview Container (Requirement 1) -->
+        <div id="image-preview-container" style="display: none; width: 100%; text-align: center; padding: 1.25rem;">
+            <img id="image-preview" src="" alt="Selected image preview for AI analysis" style="max-width: 100%; max-height: 420px; object-fit: contain; border-radius: 10px; border: 2px solid var(--primary); box-shadow: 0 6px 20px rgba(0,0,0,0.6);">
+            <div id="image-file-info" style="margin-top: 0.75rem; font-size: 1rem; color: var(--primary); font-weight: 700;"></div>
+        </div>
+    </div>
+
+    <!-- Live Status / Announcement (ARIA live region for screen readers) -->
+    <div id="vision-status" style="text-align: center; font-size: 1.2rem; font-weight: 700; color: var(--primary); margin: 1rem 0; min-height: 1.8rem;" aria-live="polite">
+        Ready. Select an input option below.
+    </div>
+
+    <!-- Primary Control Buttons Toolbar -->
+    <div style="display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <!-- Camera Controls -->
+        <button type="button" id="btn-start-camera" class="btn btn-primary" data-i18n="start_camera">
+            &#128248; Start Camera
+        </button>
+        <button type="button" id="btn-stop-camera" class="btn btn-outline" style="display: none;" data-i18n="stop_camera">
+            &#9209;&#65039; Stop Camera
+        </button>
+        <button type="button" id="btn-capture-vision" class="btn btn-secondary" disabled data-i18n="capture_image">
+            &#128247; Capture &amp; Analyze
+        </button>
+
+        <!-- Image Upload Controls -->
+        <button type="button" id="btn-upload-image" class="btn btn-outline" data-i18n="upload_image">
+            &#128193; Upload Image
+        </button>
+        <input type="file" id="file-upload-vision" accept=".jpg, .jpeg, .png, image/jpeg, image/png" style="display: none;" aria-label="Upload JPG or PNG image">
+
+        <!-- Analyze & Clear Controls (Requirement 2) -->
+        <button type="button" id="btn-analyze-image" class="btn btn-primary" style="display: none;" data-i18n="analyze_image">
+            &#128269; Analyze Image
+        </button>
+        <button type="button" id="btn-clear-image" class="btn btn-outline" style="display: none;" data-i18n="clear_image">
+            &#10005; Clear Image
+        </button>
+    </div>
+
+    <!-- Results Box (Requirements 7, 8, 9, 10) -->
+    <div id="vision-results" class="results-box" style="display: none; margin-top: 1.5rem;" role="region" aria-label="AI Image Analysis Details">
+        <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; border-bottom: 1.5px solid var(--border-color); padding-bottom: 0.75rem;">
+            <h2 style="font-size: 1.5rem; color: var(--primary); margin: 0;">AI Image Analysis Results</h2>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span id="ai-model-badge" style="font-size: 0.85rem; padding: 0.25rem 0.6rem; border-radius: 6px; background: rgba(2, 132, 199, 0.15); color: var(--secondary); border: 1.5px solid var(--secondary); font-weight: 800;">Vision AI</span>
+                <button type="button" id="btn-read-aloud" class="btn btn-primary" style="min-height: 42px; padding: 0.45rem 1rem;" aria-label="Read analysis aloud">
+                    &#128266; Read Aloud
+                </button>
+            </div>
+        </div>
+
+        <!-- API Error Notice Alert (Requirement 10: Show actual error instead of fake results) -->
+        <div id="analysis-api-error" style="display: none; background: #fff1f2; border: 2px solid #e11d48; color: #9f1239; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-weight: 600;">
+            <span style="font-size: 1.2rem; margin-right: 0.4rem;">&#9888;&#65039;</span>
+            <span id="analysis-api-error-text"></span>
+        </div>
+
+        <!-- Structured Details Grid (Requirement 7 & 8) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <!-- Card 1: Scene & Environment -->
+            <div style="background: var(--bg-card, #fff); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; font-size: 1.05rem;">
+                    &#127958;&#65039; Scene &amp; Environment
+                </div>
+                <div id="detail-scene" style="color: var(--text-primary); font-size: 1rem; line-height: 1.45;"></div>
+            </div>
+
+            <!-- Card 2: Objects & People -->
+            <div style="background: var(--bg-card, #fff); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; font-size: 1.05rem;">
+                    &#127991;&#65039; Objects &amp; People Detected
+                </div>
+                <div id="detected-tags" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;"></div>
+                <div id="detail-people" style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 700;"></div>
+            </div>
+
+            <!-- Card 3: Colors & Visual Characteristics -->
+            <div style="background: var(--bg-card, #fff); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; font-size: 1.05rem;">
+                    &#127912; Colors &amp; Visual Details
+                </div>
+                <div id="detail-colors" style="color: var(--text-primary); font-size: 1rem; line-height: 1.45;"></div>
+            </div>
+
+            <!-- Card 4: Visible Text / Signs -->
+            <div style="background: var(--bg-card, #fff); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; font-size: 1.05rem;">
+                    &#128221; Important Visible Text / Signs
+                </div>
+                <div id="detail-text" style="color: var(--text-primary); font-size: 1rem; line-height: 1.45;"></div>
+            </div>
+        </div>
+
+        <!-- Card 5: Assistive & Mobility Guidance -->
+        <div style="background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="font-weight: 800; color: #15803d; margin-bottom: 0.35rem; font-size: 1.05rem;">
+                &#9888;&#65039; Assistive Guidance &amp; Mobility Advice
+            </div>
+            <div id="detail-guidance" style="color: #14532d; font-size: 1.05rem; font-weight: 600; line-height: 1.45;"></div>
+        </div>
+
+        <!-- Card 6: Spoken Summary Box -->
+        <div style="background: var(--bg-card, #fff); border: 1.5px solid var(--border-color); border-left: 6px solid var(--primary); border-radius: 8px; padding: 1.25rem;">
+            <div style="font-weight: 800; color: var(--primary); margin-bottom: 0.4rem; font-size: 1.1rem;">
+                &#128266; Full Spoken Assistive Summary
+            </div>
+            <div id="vision-output-text" tabindex="0" style="font-size: 1.15rem; line-height: 1.5; color: var(--text-primary); font-weight: 600;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/vision.js') }}"></script>
+{% endblock %}

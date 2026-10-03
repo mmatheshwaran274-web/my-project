@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Voice Assistant - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="tool-box" role="region" aria-labelledby="voice-heading">
+    <h1 id="voice-heading" style="font-size: 2.2rem; color: var(--primary); text-align: center; margin-bottom: 0.5rem;" data-i18n="voice_assistant">
+        Voice Assistant
+    </h1>
+    <p style="text-align: center; color: var(--text-secondary); font-size: 1.2rem; max-width: 650px; margin: 0 auto 1.5rem auto;">
+        Click the microphone button or press the <kbd style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-weight:700;">Spacebar</kbd> to begin speaking.
+    </p>
+
+    <!-- Large Central Microphone Target -->
+    <div class="microphone-center">
+        <button type="button" 
+                id="mic-button" 
+                class="mic-btn-huge" 
+                aria-label="Activate microphone to speak voice command"
+                aria-pressed="false">
+            <span aria-hidden="true">🎤</span>
+        </button>
+        <div id="mic-status" class="mic-status-text" aria-live="polite" data-i18n="press_to_speak">
+            Press to Speak
+        </div>
+        <div id="voice-transcript" style="font-size: 1.25rem; font-weight: 600; color: var(--secondary); margin-top: 0.5rem; min-height: 1.8rem;" aria-live="polite"></div>
+    </div>
+
+    <!-- Graceful Fallback for non-supported browsers or manual typing -->
+    <div id="voice-fallback-container" style="display: none; max-width: 500px; margin: 1.5rem auto;">
+        <label for="voice-fallback-input" class="form-label">Type a command:</label>
+        <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="voice-fallback-input" class="form-control" placeholder="e.g. read text, detect object">
+            <button type="button" id="voice-fallback-submit" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+
+    <!-- Supported Commands Quick Reference -->
+    <div style="margin-top: 3rem; background: #f8fafc; border: 2px solid var(--border-color); border-radius: var(--card-radius); padding: 1.5rem;">
+        <h2 style="font-size: 1.35rem; color: var(--primary); margin-bottom: 1rem;">Example Spoken Commands</h2>
+        <ul style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; list-style-position: inside; font-size: 1.15rem; color: var(--text-primary);">
+            <li><strong>“Open dashboard”</strong></li>
+            <li><strong>“Read text”</strong></li>
+            <li><strong>“Detect object”</strong></li>
+            <li><strong>“My location”</strong></li>
+            <li><strong>“Emergency”</strong></li>
+            <li><strong>“Open profile”</strong></li>
+            <li><strong>“Open settings”</strong></li>
+            <li><strong>“Show history”</strong></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+{% endblock %}

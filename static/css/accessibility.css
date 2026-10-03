@@ -1,0 +1,178 @@
+/* ==========================================================================
+   BLIND ASSIST - Accessibility Stylesheet
+   High-Contrast Modes, Font Scaling, Screen-Reader Utilities
+   ========================================================================== */
+
+/* Font Size Scaling */
+body.font-small {
+    font-size: 16px !important;
+}
+
+body.font-medium {
+    font-size: 19px !important;
+}
+
+body.font-large {
+    font-size: 23px !important;
+}
+
+body.font-xlarge {
+    font-size: 27px !important;
+}
+
+/* Screen-reader and ARIA Live region utilities */
+.sr-only,
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST MODE (Strict WCAG AAA Pure Black & Yellow/White/Cyan Scheme)
+   ========================================================================== */
+
+body.high-contrast {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+}
+
+body.high-contrast .site-header,
+body.high-contrast .site-footer,
+body.high-contrast .tool-box,
+body.high-contrast .form-container,
+body.high-contrast .feature-card,
+body.high-contrast .dash-card,
+body.high-contrast .results-box,
+body.high-contrast .results-content,
+body.high-contrast .modal-card,
+body.high-contrast .data-table-container,
+body.high-contrast .data-table {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+    box-shadow: none !important;
+}
+
+body.high-contrast h1,
+body.high-contrast h2,
+body.high-contrast h3,
+body.high-contrast h4,
+body.high-contrast h5,
+body.high-contrast h6,
+body.high-contrast strong,
+body.high-contrast .hero-title,
+body.high-contrast .brand-link,
+body.high-contrast .dash-card-title,
+body.high-contrast .feature-card h3 {
+    color: #ffff00 !important;
+}
+
+body.high-contrast p,
+body.high-contrast span,
+body.high-contrast label,
+body.high-contrast .hero-description,
+body.high-contrast .hero-tagline,
+body.high-contrast .dash-card-subtitle,
+body.high-contrast .form-hint {
+    color: #ffffff !important;
+}
+
+body.high-contrast a {
+    color: #00ffff !important;
+    text-decoration: underline !important;
+}
+
+body.high-contrast .nav-link {
+    color: #ffff00 !important;
+    border: 2px solid transparent !important;
+}
+
+body.high-contrast .nav-link:hover,
+body.high-contrast .nav-link:focus-visible {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #ffff00 !important;
+}
+
+body.high-contrast .nav-link.active {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+}
+
+body.high-contrast .btn,
+body.high-contrast .btn-primary,
+body.high-contrast .btn-secondary,
+body.high-contrast .btn-outline {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 3px solid #ffff00 !important;
+}
+
+body.high-contrast .btn:hover,
+body.high-contrast .btn:focus-visible {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+}
+
+body.high-contrast .btn-danger,
+body.high-contrast .btn-emergency-huge,
+body.high-contrast .btn-nav-emergency,
+body.high-contrast .card-emergency {
+    background-color: #000000 !important;
+    color: #ff3333 !important;
+    border: 4px solid #ff3333 !important;
+}
+
+body.high-contrast .btn-danger:hover,
+body.high-contrast .btn-danger:focus-visible,
+body.high-contrast .btn-emergency-huge:hover,
+body.high-contrast .btn-emergency-huge:focus-visible {
+    background-color: #ff3333 !important;
+    color: #ffffff !important;
+}
+
+body.high-contrast .form-control {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 3px solid #ffff00 !important;
+}
+
+body.high-contrast .form-control:focus {
+    outline: 4px solid #00ffff !important;
+}
+
+body.high-contrast .mic-btn-huge {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border: 5px solid #ffff00 !important;
+}
+
+body.high-contrast .mic-btn-huge.listening {
+    background-color: #ff3333 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+body.high-contrast .data-table th {
+    background-color: #111111 !important;
+    color: #ffff00 !important;
+    border-bottom: 2px solid #ffff00 !important;
+}
+
+body.high-contrast .data-table td {
+    color: #ffffff !important;
+    border-bottom: 1px solid #444444 !important;
+}
+
+body.high-contrast .flash-message {
+    background-color: #000000 !important;
+    border: 3px solid #ffff00 !important;
+    color: #ffff00 !important;
+}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Text Reader (OCR) - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="tool-box" role="region" aria-labelledby="ocr-heading">
+    <h1 id="ocr-heading" style="font-size: 2.2rem; color: var(--primary); text-align: center; margin-bottom: 0.5rem;" data-i18n="read_text">
+        Text Reader (OCR)
+    </h1>
+    <p style="text-align: center; color: var(--text-secondary); font-size: 1.2rem; max-width: 650px; margin: 0 auto 1.5rem auto;" data-i18n="read_subtitle">
+        Scan printed documents, medication labels, or signs and have them read aloud.
+    </p>
+
+    <!-- Camera Viewport -->
+    <div class="camera-wrapper">
+        <video id="camera-feed-ocr" playsinline autoplay style="display: none;"></video>
+        <div id="camera-placeholder-ocr" class="camera-placeholder">
+            <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">📖</span>
+            Camera is inactive.<br>Start camera to scan text or upload a document photo below.
+        </div>
+    </div>
+
+    <!-- Status Notice -->
+    <div id="ocr-status" style="text-align: center; font-size: 1.2rem; font-weight: 700; color: var(--primary); margin: 1rem 0;" aria-live="polite">
+        Ready to scan documents.
+    </div>
+
+    <!-- Controls -->
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <button type="button" id="btn-start-camera-ocr" class="btn btn-primary" data-i18n="start_camera">
+            🎥 Start Camera
+        </button>
+        <button type="button" id="btn-stop-camera-ocr" class="btn btn-outline" style="display: none;" data-i18n="stop_camera">
+            ⏹ Stop Camera
+        </button>
+        <button type="button" id="btn-capture-ocr" class="btn btn-secondary" disabled data-i18n="capture_image">
+            📸 Capture & Extract Text
+        </button>
+    </div>
+
+    <!-- File Upload -->
+    <div style="text-align: center; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+        <label for="file-upload-ocr" class="btn btn-outline" style="cursor: pointer;" data-i18n="upload_image">
+            📁 Upload Document Image
+        </label>
+        <input type="file" id="file-upload-ocr" accept="image/*" class="visually-hidden">
+    </div>
+
+    <!-- Results Box & Audio Controls -->
+    <div id="ocr-results" class="results-box" style="display: none;" role="region" aria-label="Extracted Text Results">
+        <div class="results-header">
+            <h2 style="font-size: 1.4rem; color: var(--primary);">Extracted Text</h2>
+            <!-- Audio Playback Toolbar -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="btn-read-aloud" class="btn btn-primary" style="min-height: 48px;" data-i18n="read_aloud">
+                    🔊 Read Aloud
+                </button>
+                <button type="button" id="btn-pause-speech" class="btn btn-outline" style="min-height: 48px;" data-i18n="pause_speech">
+                    ⏸ Pause
+                </button>
+                <button type="button" id="btn-resume-speech" class="btn btn-outline" style="min-height: 48px;" data-i18n="resume_speech">
+                    ▶ Resume
+                </button>
+                <button type="button" id="btn-stop-speech" class="btn btn-danger" style="min-height: 48px;" data-i18n="stop_speech">
+                    ⏹ Stop
+                </button>
+            </div>
+        </div>
+        <div id="ocr-output-text" class="results-content" tabindex="0" aria-label="Extracted text content"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/ocr.js') }}"></script>
+{% endblock %}

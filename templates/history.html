@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Activity History - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="tool-box" role="region" aria-labelledby="history-heading">
+    <h1 id="history-heading" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 0.5rem;" data-i18n="activity_history">
+        History &amp; Logs
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1.15rem; margin-bottom: 2rem;" data-i18n="history_subtitle">
+        Audit log of all image analyses, voice commands, text readings, and emergencies associated with your account.
+    </p>
+
+    <!-- SECTION 1: Image Analyses (Requirement 7 & 8) -->
+    <div style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 0.75rem;">
+            &#128247; Saved Image Analyses
+        </h2>
+        {% if analyses and analyses|length > 0 %}
+            <div class="data-table-container">
+                <table class="data-table" aria-label="Image Analysis History">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 14%;">Preview</th>
+                            <th scope="col" style="width: 24%;">Date &amp; Time</th>
+                            <th scope="col" style="width: 48%;">AI Analysis Result</th>
+                            <th scope="col" style="width: 14%; text-align: center;">Audio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in analyses %}
+                            <tr>
+                                <td>
+                                    <a href="/uploads/{{ item.image_filename }}" target="_blank" title="View Full Image">
+                                        <img src="/uploads/{{ item.image_filename }}" 
+                                             alt="Thumbnail of analyzed image" 
+                                             style="width: 58px; height: 58px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-color); background: #000;"
+                                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'58\' height=\'58\' viewBox=\'0 0 58 58\'><rect width=\'58\' height=\'58\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'22\'>&#128247;</text></svg>';">
+                                    </a>
+                                </td>
+                                <td style="font-weight: 600; color: var(--text-muted);">
+                                    {{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else 'N/A' }}
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; margin-top: 3px;">
+                                        {{ item.image_filename }}
+                                    </div>
+                                </td>
+                                <td style="color: var(--text-primary); font-size: 1.05rem; font-weight: 600;">
+                                    {{ item.analysis_result }}
+                                </td>
+                                <td style="text-align: center;">
+                                    <button type="button" 
+                                            class="btn btn-outline" 
+                                            style="min-height: 40px; padding: 0.35rem 0.75rem; font-size: 0.95rem;" 
+                                            onclick="if(typeof BlindAssistA11y!=='undefined') BlindAssistA11y.speak('{{ item.analysis_result | replace("'", "\\'") }}')"
+                                            aria-label="Speak analysis result aloud">
+                                        &#128266; Read
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state" style="padding: 1.75rem 1rem; border: 2px dashed var(--border-color); border-radius: var(--card-radius); text-align: center;">
+                <p style="margin: 0; color: var(--text-secondary);">No image analysis records found yet. Upload images in Object Detection to see them here.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- SECTION 2: General Activity History -->
+    <div>
+        <h2 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 0.75rem;">
+            &#128220; Activity Audit Log
+        </h2>
+        {% if activities and activities|length > 0 %}
+            <div class="data-table-container">
+                <table class="data-table" aria-label="User Activity Log">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 25%;">Date &amp; Time</th>
+                            <th scope="col" style="width: 25%;">Activity Type</th>
+                            <th scope="col" style="width: 50%;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in activities %}
+                            <tr>
+                                <td style="font-weight: 600; color: var(--text-muted);">
+                                    {{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else 'N/A' }}
+                                </td>
+                                <td>
+                                    <span class="btn btn-outline" style="min-height: 38px; padding: 0.25rem 0.75rem; font-size: 0.95rem; font-weight: 700; cursor: default;">
+                                        {{ item.activity_type }}
+                                    </span>
+                                </td>
+                                <td style="color: var(--text-primary); font-size: 1.05rem;">
+                                    {{ item.description }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state" role="status">
+                <div class="empty-state-icon" aria-hidden="true">&#128220;</div>
+                <div class="empty-state-title">No activity history available.</div>
+                <p>Your recent commands, scans, and detections will appear here automatically.</p>
+                <a href="{{ url_for('dashboard.dashboard_page') }}" class="btn btn-primary" style="margin-top: 1.5rem;">
+                    Return to Dashboard
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const analysisCount = {{ analyses|length if analyses else 0 }};
+    const actCount = {{ activities|length if activities else 0 }};
+    const msg = `History loaded. You have ${analysisCount} saved image analyses and ${actCount} general activity logs.`;
+    setTimeout(() => {
+        if (typeof BlindAssistA11y !== 'undefined' && BlindAssistA11y.speak) {
+            BlindAssistA11y.speak(msg);
+        }
+    }, 400);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Accessibility Settings - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="form-container" role="region" aria-labelledby="settings-heading">
+    <h1 id="settings-heading" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary);">
+        Accessibility Settings
+    </h1>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">
+        Customize speech output, visual contrast, font sizes, and system language.
+    </p>
+
+    <div id="settings-feedback" class="flash-message success" style="display: none;" role="alert"></div>
+
+    <form id="settings-form">
+        <!-- 1. Voice Assistance Toggle -->
+        <div class="form-group">
+            <label class="form-label" id="lbl-voice">Voice Assistance</label>
+            <div style="display: flex; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 1.15rem;">
+                    <input type="radio" name="voice_enabled" value="true" {% if settings.voice_enabled %}checked{% endif %} style="width: 22px; height: 22px;">
+                    ON
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 1.15rem;">
+                    <input type="radio" name="voice_enabled" value="false" {% if not settings.voice_enabled %}checked{% endif %} style="width: 22px; height: 22px;">
+                    OFF
+                </label>
+            </div>
+            <div class="form-hint">Enables spoken voice responses across all tools.</div>
+        </div>
+
+        <!-- 2. Speech Speed -->
+        <div class="form-group">
+            <label for="set-speech-speed" class="form-label">Speech Speed</label>
+            <select id="set-speech-speed" name="speech_speed" class="form-control">
+                <option value="0.5" {% if settings.speech_speed == 0.5 %}selected{% endif %}>0.5x (Slow)</option>
+                <option value="1.0" {% if settings.speech_speed == 1.0 %}selected{% endif %}>1.0x (Normal)</option>
+                <option value="1.5" {% if settings.speech_speed == 1.5 %}selected{% endif %}>1.5x (Fast)</option>
+                <option value="2.0" {% if settings.speech_speed == 2.0 %}selected{% endif %}>2.0x (Very Fast)</option>
+            </select>
+        </div>
+
+        <!-- 3. Font Size -->
+        <div class="form-group">
+            <label for="set-font-size" class="form-label">Font Size</label>
+            <select id="set-font-size" name="font_size" class="form-control">
+                <option value="small" {% if settings.font_size == 'small' %}selected{% endif %}>Small (16px)</option>
+                <option value="medium" {% if settings.font_size == 'medium' %}selected{% endif %}>Medium (19px)</option>
+                <option value="large" {% if settings.font_size == 'large' %}selected{% endif %}>Large (23px)</option>
+                <option value="x-large" {% if settings.font_size in ('x-large', 'xlarge') %}selected{% endif %}>Extra Large (27px)</option>
+            </select>
+        </div>
+
+        <!-- 4. High Contrast Mode -->
+        <div class="form-group">
+            <label class="form-label">High Contrast Mode</label>
+            <div style="display: flex; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 1.15rem;">
+                    <input type="radio" name="high_contrast" value="true" {% if settings.high_contrast %}checked{% endif %} style="width: 22px; height: 22px;">
+                    ON (Black & Yellow)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 1.15rem;">
+                    <input type="radio" name="high_contrast" value="false" {% if not settings.high_contrast %}checked{% endif %} style="width: 22px; height: 22px;">
+                    OFF (Standard Theme)
+                </label>
+            </div>
+            <div class="form-hint">Shortcut: Press Alt + H anywhere to quickly toggle.</div>
+        </div>
+
+        <!-- 5. Language -->
+        <div class="form-group">
+            <label for="set-language" class="form-label">Interface & Speech Language</label>
+            <select id="set-language" name="language" class="form-control">
+                <option value="en" {% if settings.language == 'en' %}selected{% endif %}>English</option>
+                <option value="ta" {% if settings.language == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+            </select>
+        </div>
+
+        <button type="submit" id="save-settings-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Save Preferences
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('settings-form');
+    const feedback = document.getElementById('settings-feedback');
+    const saveBtn = document.getElementById('save-settings-btn');
+
+    BlindAssistA11y.speak("Accessibility Settings page. Configure high contrast, speech speed, font size, and language.");
+
+    // Live preview on changes
+    document.querySelectorAll('input[name="high_contrast"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            BlindAssistA11y.setHighContrast(this.value === 'true');
+        });
+    });
+
+    document.getElementById('set-font-size').addEventListener('change', function() {
+        BlindAssistA11y.setFontSize(this.value);
+    });
+
+    document.getElementById('set-speech-speed').addEventListener('change', function() {
+        BlindAssistA11y.setSpeechSpeed(this.value);
+    });
+
+    document.getElementById('set-language').addEventListener('change', function() {
+        BlindAssistA11y.setLanguage(this.value);
+    });
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+
+        const formData = new FormData(form);
+        const payload = {
+            voice_enabled: formData.get('voice_enabled') === 'true',
+            speech_speed: parseFloat(formData.get('speech_speed')),
+            font_size: formData.get('font_size'),
+            high_contrast: formData.get('high_contrast') === 'true',
+            language: formData.get('language')
+        };
+
+        try {
+            const res = await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                feedback.textContent = "Preferences saved to your profile.";
+                feedback.style.display = 'block';
+                BlindAssistA11y.speak("Settings saved successfully.");
+            } else {
+                feedback.textContent = data.error || "Failed to update settings.";
+                feedback.className = "flash-message danger";
+                feedback.style.display = 'block';
+            }
+        } catch (err) {
+            feedback.textContent = "Network error. Failed to save preferences.";
+            feedback.className = "flash-message danger";
+            feedback.style.display = 'block';
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Preferences";
+        }
+    });
+});
+</script>
+{% endblock %}

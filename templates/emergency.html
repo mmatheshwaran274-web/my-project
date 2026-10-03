@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Assistance - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="tool-box" role="region" aria-labelledby="emergency-heading" style="border-color: var(--danger);">
+    <h1 id="emergency-heading" style="font-size: 2.3rem; color: var(--danger); text-align: center; margin-bottom: 0.5rem;" data-i18n="emergency">
+        🚨 Emergency Assistance
+    </h1>
+    <p style="text-align: center; color: var(--text-secondary); font-size: 1.25rem; max-width: 650px; margin: 0 auto 2rem auto;" data-i18n="emergency_subtitle">
+        Immediate safety tool for visually impaired users. Pressing the button below logs your GPS location and coordinates emergency instructions.
+    </p>
+
+    <!-- Large Tactile Emergency Button -->
+    <div style="text-align: center;">
+        <button type="button" 
+                id="btn-trigger-emergency" 
+                class="btn btn-emergency-huge"
+                aria-haspopup="dialog"
+                aria-label="Activate Emergency Assistance. Press Enter to initiate confirmation.">
+            🚨 ACTIVATE EMERGENCY
+        </button>
+    </div>
+
+    <!-- Status Notice -->
+    <div id="emergency-status" style="text-align: center; font-size: 1.3rem; font-weight: 700; color: var(--danger); min-height: 2.2rem; margin: 1.5rem 0;" aria-live="assertive">
+        Press button above to request help.
+    </div>
+
+    <!-- Emergency Confirmation Accessible Modal -->
+    <div id="emergency-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-emergency-title" aria-hidden="true">
+        <div class="modal-card">
+            <h2 id="modal-emergency-title" style="font-size: 1.8rem; color: var(--danger); margin-bottom: 1rem; text-align: center;">
+                Confirm Emergency Activation
+            </h2>
+            <p style="font-size: 1.2rem; line-height: 1.6; text-align: center; margin-bottom: 2rem;" data-i18n="emergency_prompt">
+                Are you sure you want to activate emergency assistance?
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button type="button" id="btn-emergency-cancel" class="btn btn-outline" style="flex: 1; min-width: 140px;" data-i18n="cancel">
+                    CANCEL
+                </button>
+                <button type="button" id="btn-emergency-confirm" class="btn btn-danger" style="flex: 1; min-width: 180px;" data-i18n="confirm">
+                    CONFIRM EMERGENCY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Incident Information (Populated after trigger) -->
+    <div id="emergency-results" class="results-box" style="display: none; border-color: var(--danger); background-color: #fffaf9;" role="region" aria-label="Incident Details">
+        <h2 style="font-size: 1.6rem; color: var(--danger); margin-bottom: 1rem;">
+            Emergency Incident Activated
+        </h2>
+
+        <div style="font-size: 1.2rem; margin-bottom: 1.5rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 2px solid #fca5a5;">
+            <strong>Registered Emergency Contact:</strong>
+            <span id="emergency-contact-display" style="font-size: 1.35rem; font-weight: 800; color: var(--danger); margin-left: 0.5rem;">
+                {{ user.emergency_contact or 'No contact configured' }}
+            </span>
+            <div style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0.25rem;">
+                (Update your contact anytime in your <a href="{{ url_for('dashboard.profile_page') }}">User Profile</a>)
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 0.75rem;">Immediate Safety Guidelines:</h3>
+        <ol id="emergency-instructions-list" style="font-size: 1.15rem; line-height: 1.7; padding-left: 1.5rem;"></ol>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/emergency.js') }}"></script>
+{% endblock %}

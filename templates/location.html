@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}My Location - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="tool-box" role="region" aria-labelledby="location-heading">
+    <h1 id="location-heading" style="font-size: 2.2rem; color: var(--primary); text-align: center; margin-bottom: 0.5rem;" data-i18n="my_location">
+        Location Assistance
+    </h1>
+    <p style="text-align: center; color: var(--text-secondary); font-size: 1.2rem; max-width: 650px; margin: 0 auto 1.5rem auto;" data-i18n="location_subtitle">
+        Acquire your current real-time GPS coordinates and view your surrounding location.
+    </p>
+
+    <!-- Trigger Button -->
+    <div style="text-align: center; margin: 2.5rem 0;">
+        <button type="button" id="btn-get-location" class="btn btn-primary" style="font-size: 1.35rem; padding: 1.25rem 2.5rem; min-height: 70px;">
+            📍 Get My Current Location
+        </button>
+    </div>
+
+    <!-- Status Text -->
+    <div id="loc-status" style="text-align: center; font-size: 1.25rem; font-weight: 700; color: var(--primary); min-height: 2rem;" aria-live="polite">
+        Press the button above to request GPS coordinates.
+    </div>
+
+    <!-- Results Box -->
+    <div id="loc-results" class="results-box" style="display: none; max-width: 600px; margin: 2rem auto;" role="region" aria-label="Location Details">
+        <h2 style="font-size: 1.4rem; color: var(--primary); margin-bottom: 1.25rem; text-align: center;">Detected Coordinates</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="font-weight: 700; color: var(--text-muted); font-size: 1rem;">LATITUDE</div>
+                <div id="loc-latitude" style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem;"></div>
+            </div>
+            <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="font-weight: 700; color: var(--text-muted); font-size: 1rem;">LONGITUDE</div>
+                <div id="loc-longitude" style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem;"></div>
+            </div>
+        </div>
+
+        <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; margin-bottom: 1.5rem;">
+            <div style="font-weight: 700; color: var(--text-muted); font-size: 1rem;">ACCURACY RADIUS</div>
+            <div id="loc-accuracy" style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;"></div>
+        </div>
+
+        <div style="text-align: center;">
+            <a id="loc-map-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="display: none;">
+                🗺 View on OpenStreetMap (External)
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/location.js') }}"></script>
+{% endblock %}

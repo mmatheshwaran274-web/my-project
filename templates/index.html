@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Blind Assist - Smart Assistance for Independent Living{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section" aria-labelledby="hero-heading">
+    <h1 id="hero-heading" class="hero-title" data-i18n="brand">Blind Assist</h1>
+    <p class="hero-tagline" data-i18n="tagline">Smart Assistance for Independent Living</p>
+    <p class="hero-description">
+        Blind Assist is a dedicated, fully accessible web assistive platform engineered to empower visually impaired individuals. 
+        Featuring natural speech control, real-time computer vision object detection, document text reading, GPS location awareness, 
+        and immediate emergency dispatch support.
+    </p>
+    <div class="hero-actions">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard.dashboard_page') }}" class="btn btn-secondary" style="background:#ffffff; color:#1e3a8a;" data-i18n="dashboard">Go to Dashboard</a>
+        {% else %}
+            <a href="{{ url_for('auth.register_page') }}" class="btn btn-secondary" style="background:#ffffff; color:#1e3a8a;" data-i18n="get_started">GET STARTED</a>
+            <a href="{{ url_for('auth.login_page') }}" class="btn btn-outline" style="border-color:#ffffff; color:#ffffff;" data-i18n="login">LOGIN</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" aria-labelledby="features-heading">
+    <h2 id="features-heading" style="text-align: center; font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary);">Platform Features</h2>
+    <p style="text-align: center; color: var(--text-secondary); max-width: 700px; margin: 0 auto 2rem auto; font-size: 1.15rem;">
+        Everything you need for safe navigation, reading, and communication — designed with screen readers and voice first.
+    </p>
+
+    <div class="features-grid">
+        <!-- Feature 1: Voice Assistant -->
+        <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">🎤</span>
+            <h3 data-i18n="voice_assistant">Voice Assistant</h3>
+            <p>Hands-free voice recognition allowing you to navigate pages and trigger any tool using natural spoken commands.</p>
+            <a href="{% if current_user.is_authenticated %}{{ url_for('voice.voice_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}" class="btn btn-outline">Explore Voice &rarr;</a>
+        </article>
+
+        <!-- Feature 2: Object Detection -->
+        <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">📷</span>
+            <h3 data-i18n="object_detection">Object Detection</h3>
+            <p>Real-time visual awareness using camera snapshots to identify obstacles, furniture, people, and daily household items.</p>
+            <a href="{% if current_user.is_authenticated %}{{ url_for('vision.vision_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}" class="btn btn-outline">Explore Vision &rarr;</a>
+        </article>
+
+        <!-- Feature 3: Text Reader -->
+        <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">📖</span>
+            <h3 data-i18n="read_text">Text Reader (OCR)</h3>
+            <p>Instant optical character recognition for prescription bottles, letters, street signs, and books with text-to-speech audio.</p>
+            <a href="{% if current_user.is_authenticated %}{{ url_for('ocr.ocr_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}" class="btn btn-outline">Explore OCR &rarr;</a>
+        </article>
+
+        <!-- Feature 4: Location Assistance -->
+        <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">📍</span>
+            <h3 data-i18n="my_location">Location Assistance</h3>
+            <p>Precise browser GPS geocoding that speaks your current position and coordinates to keep you oriented anywhere.</p>
+            <a href="{% if current_user.is_authenticated %}{{ url_for('location.location_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}" class="btn btn-outline">Explore Location &rarr;</a>
+        </article>
+
+        <!-- Feature 5: Emergency Assistance -->
+        <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">🚨</span>
+            <h3 data-i18n="emergency">Emergency Assistance</h3>
+            <p>One-touch high contrast panic activation that logs incident coordinates, displays emergency contacts, and speaks calming instructions.</p>
+            <a href="{% if current_user.is_authenticated %}{{ url_for('emergency.emergency_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}" class="btn btn-danger">Emergency Tool &rarr;</a>
+        </article>
+
+        <!-- Feature 6: Accessibility Settings -->
+        <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">⚙️</span>
+            <h3 data-i18n="settings">Accessibility Settings</h3>
+            <p>Tailor your experience with high-contrast modes, dynamic font scaling, speech speeds, and English & Tamil bilingual support.</p>
+            <a href="{% if current_user.is_authenticated %}{{ url_for('settings.settings_page') }}{% else %}{{ url_for('auth.login_page') }}{% endif %}" class="btn btn-outline">Customize &rarr;</a>
+        </article>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="tool-box" style="margin-top: 2rem;" aria-labelledby="about-heading">
+    <h2 id="about-heading" style="font-size: 1.8rem; margin-bottom: 1rem; color: var(--primary);">About Blind Assist</h2>
+    <p style="font-size: 1.15rem; line-height: 1.7; margin-bottom: 1rem;">
+        Blind Assist was built from the ground up prioritizing universal accessibility standards (WCAG AAA). 
+        All interactions feature keyboard shortcuts, high-contrast visual cues, large tactile buttons, and synthesized voice feedback.
+    </p>
+    <p style="font-size: 1.15rem; line-height: 1.7;">
+        Privacy and safety are fundamental: camera feeds and geolocation data are processed on-demand with your explicit authorization.
+    </p>
+</section>
+{% endblock %}

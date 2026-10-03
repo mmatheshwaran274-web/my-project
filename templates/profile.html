@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - Blind Assist{% endblock %}
+
+{% block content %}
+<div class="form-container" role="region" aria-labelledby="profile-heading">
+    <h1 id="profile-heading" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary);">
+        User Profile
+    </h1>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">
+        Review your account information and keep your emergency contact up to date.
+    </p>
+
+    <!-- Feedback Alerts -->
+    <div id="profile-alert" class="flash-message success" style="display: none;" role="alert"></div>
+
+    <form id="profile-form" novalidate>
+        <div class="form-group">
+            <label for="prof-name" class="form-label">Full Name</label>
+            <input type="text" id="prof-name" name="name" class="form-control" value="{{ user.name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="prof-email" class="form-label">Email Address (Read-only)</label>
+            <input type="email" id="prof-email" name="email" class="form-control" value="{{ user.email }}" readonly style="background-color: #f1f5f9; cursor: not-allowed;">
+            <div class="form-hint">Email address cannot be modified directly for account security.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="prof-phone" class="form-label">Phone Number</label>
+            <input type="tel" id="prof-phone" name="phone" class="form-control" value="{{ user.phone or '' }}" placeholder="+1 555-0199">
+        </div>
+
+        <div class="form-group">
+            <label for="prof-emergency" class="form-label">Primary Emergency Contact</label>
+            <input type="tel" id="prof-emergency" name="emergency_contact" class="form-control" value="{{ user.emergency_contact or '' }}" placeholder="+1 555-9110">
+            <div class="form-hint">Contact person alerted during emergency activations.</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Account Created</label>
+            <div style="font-size: 1.1rem; padding: 0.75rem 0; color: var(--text-muted);">
+                {{ user.created_at.strftime('%B %d, %Y at %H:%M UTC') if user.created_at else 'N/A' }}
+            </div>
+        </div>
+
+        <button type="submit" id="prof-save-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Save Profile Changes
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profile-form');
+    const alertBox = document.getElementById('profile-alert');
+    const saveBtn = document.getElementById('prof-save-btn');
+
+    BlindAssistA11y.speak("Profile page. You can review your details and update your emergency contact here.");
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        alertBox.style.display = 'none';
+
+        const name = document.getElementById('prof-name').value.trim();
+        const phone = document.getElementById('prof-phone').value.trim();
+        const emergency_contact = document.getElementById('prof-emergency').value.trim();
+
+        if (!name) {
+            showAlert("Name is required.", "danger");
+            return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+
+        try {
+            const res = await fetch('/api/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, phone, emergency_contact })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                showAlert("Profile changes saved successfully.", "success");
+            } else {
+                showAlert(data.error || "Failed to update profile.", "danger");
+            }
+        } catch (err) {
+            showAlert("Network error. Please try again.", "danger");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Profile Changes";
+        }
+    });
+
+    function showAlert(msg, type) {
+        alertBox.textContent = msg;
+        alertBox.className = `flash-message ${type}`;
+        alertBox.style.display = 'block';
+        BlindAssistA11y.speak(msg);
+        alertBox.scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
+{% endblock %}
